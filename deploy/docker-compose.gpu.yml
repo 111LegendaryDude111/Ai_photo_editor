@@ -1,0 +1,20 @@
+services:
+  api:
+    build:
+      args:
+        UV_EXTRAS: "models"
+    environment:
+      PHOTO_EDITOR_ENABLE_REAL_MODELS: "true"
+      PHOTO_EDITOR_TORCH_DEVICE: "cuda"
+      PHOTO_EDITOR_ENABLE_CPU_OFFLOAD: "true"
+    gpus: all
+
+  worker:
+    build:
+      args:
+        UV_EXTRAS: "models"
+    environment:
+      PHOTO_EDITOR_ENABLE_REAL_MODELS: "true"
+      PHOTO_EDITOR_TORCH_DEVICE: "cuda"
+      PHOTO_EDITOR_ENABLE_CPU_OFFLOAD: "true"
+    gpus: all

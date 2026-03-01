@@ -26,6 +26,8 @@ class GenerationRequest(BaseModel):
     lora_id: str | None = None
     lora_scale: float | None = Field(default=None, ge=0.0, le=1.5)
     seed: int = 42
+    max_retries: int | None = Field(default=None, ge=0, le=5)
+    ab_variants: int | None = Field(default=None, ge=1, le=4)
 
     @model_validator(mode="after")
     def validate_mask_for_inpaint(self) -> "GenerationRequest":
@@ -39,6 +41,7 @@ class Metrics(BaseModel):
     clip_score: float
     artifact_score: float
     latency_ms: float
+    nsfw_score: float = 0.0
 
 
 class GenerationResult(BaseModel):

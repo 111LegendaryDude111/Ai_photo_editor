@@ -1,0 +1,90 @@
+services:
+  api:
+    container_name: photo-editor-api
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    env_file:
+      - env.docker
+    environment:
+      PHOTO_EDITOR_USE_MINIO: "true"
+      PHOTO_EDITOR_USE_POSTGRES: "true"
+      PHOTO_EDITOR_MINIO_ENDPOINT: "minio:9000"
+      PHOTO_EDITOR_POSTGRES_DSN: "postgresql://photo_editor:${POSTGRES_PASSWORD}@postgres:5432/photo_editor"
+      PHOTO_EDITOR_CELERY_BROKER_URL: "redis://redis:6379/0"
+      PHOTO_EDITOR_CELERY_RESULT_BACKEND: "redis://redis:6379/1"
+    depends_on:
+      - redis
+      - minio
+      - postgres
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../data:/app/data
+    restart: unless-stopped
+
+  worker:
+    container_name: photo-editor-worker
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    env_file:
+      - env.docker
+    environment:
+      PHOTO_EDITOR_USE_MINIO: "true"
+      PHOTO_EDITOR_USE_POSTGRES: "true"
+      PHOTO_EDITOR_MINIO_ENDPOINT: "minio:9000"
+      PHOTO_EDITOR_POSTGRES_DSN: "postgresql://photo_editor:${POSTGRES_PASSWORD}@postgres:5432/photo_editor"
+      PHOTO_EDITOR_CELERY_BROKER_URL: "redis://redis:6379/0"
+      PHOTO_EDITOR_CELERY_RESULT_BACKEND: "redis://redis:6379/1"
+    depends_on:
+      - redis
+      - minio
+      - postgres
+    command: ["uv", "run", "celery", "-A", "app.workers.celery_app:celery_app", "worker", "-l", "info", "--concurrency=2"]
+    volumes:
+      - ../data:/app/data
+    restart: unless-stopped
+
+  redis:
+    container_name: photo-editor-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  minio:
+    container_name: photo-editor-minio
+    image: minio/minio:RELEASE.2025-02-18T16-25-55Z
+    command: server /data --console-address ":9001"
+    env_file:
+      - env.docker
+    environment:
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  postgres:
+    container_name: photo-editor-postgres
+    image: postgres:16-alpine
+    env_file:
+      - env.docker
+    environment:
+      POSTGRES_DB: photo_editor
+      POSTGRES_USER: photo_editor
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U photo_editor -d photo_editor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  minio_data:
+  postgres_data:

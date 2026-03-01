@@ -1,0 +1,18 @@
+[Unit]
+Description=Identity Photo Editor API (FastAPI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=photoeditor
+Group=photoeditor
+WorkingDirectory=/opt/ai-photo-editor
+EnvironmentFile=/opt/ai-photo-editor/.env
+ExecStart=/usr/bin/env uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=3
+TimeoutStartSec=60
+
+[Install]
+WantedBy=multi-user.target

@@ -12,3 +12,11 @@ class InvalidMaskError(PipelineError):
 
 class MissingLoraError(PipelineError):
     """Raised when requested LoRA checkpoint cannot be loaded."""
+
+
+class InputValidationError(PipelineError):
+    """Raised when user input image/payload violates policy limits."""
+
+
+class GpuOutOfMemoryError(PipelineError):
+    """Raised when generation fails because of GPU OOM."""

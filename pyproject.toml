@@ -15,12 +15,26 @@ dependencies = [
   "celery>=5.4.0",
   "redis>=5.0.0",
   "python-multipart>=0.0.9",
+  "minio>=7.2.7",
+  "psycopg[binary]>=3.2.1",
+  "PyJWT>=2.8.0",
 ]
 
 [project.optional-dependencies]
 dev = [
   "pytest>=8.2.0",
   "httpx>=0.27.0",
+]
+models = [
+  "torch>=2.1.0",
+  "diffusers>=0.30.0",
+  "transformers>=4.44.0",
+  "accelerate>=0.33.0",
+  "insightface>=0.7.3",
+  "onnxruntime>=1.18.0",
+  "opencv-python-headless>=4.10.0.84",
+  "controlnet-aux>=0.0.9",
+  "segment-anything>=1.0",
 ]
 
 [build-system]

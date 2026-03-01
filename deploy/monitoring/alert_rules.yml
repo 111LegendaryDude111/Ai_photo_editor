@@ -1,0 +1,38 @@
+groups:
+  - name: photo-editor-alerts
+    rules:
+      - alert: IdentityDriftSpike
+        expr: histogram_quantile(0.50, sum(rate(photo_editor_identity_similarity_bucket[10m])) by (le)) < 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Identity similarity median dropped below 0.85
+          description: Check recent model changes and LoRA drift.
+
+      - alert: HighRejectionRate
+        expr: sum(rate(photo_editor_rejections_total[5m])) / clamp_min(sum(rate(photo_editor_requests_total[5m])), 1e-9) > 0.10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Rejection rate exceeded 10%
+          description: Quality gates are rejecting an abnormal share of requests.
+
+      - alert: P95LatencyHigh
+        expr: histogram_quantile(0.95, sum(rate(photo_editor_latency_seconds_bucket[5m])) by (le)) > 15
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: P95 latency exceeded 15 seconds
+          description: GPU queue saturation or model warm-up regression detected.
+
+      - alert: NSFWRiskSpike
+        expr: histogram_quantile(0.95, sum(rate(photo_editor_nsfw_score_bucket[10m])) by (le)) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: NSFW score spike detected
+          description: Review safety classifier calibration and prompt filtering.

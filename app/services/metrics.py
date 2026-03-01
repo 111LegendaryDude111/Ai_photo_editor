@@ -13,6 +13,11 @@ IDENTITY_SIM_HIST = Histogram(
     "Identity similarity distribution",
     buckets=(0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0),
 )
+NSFW_SCORE_HIST = Histogram(
+    "photo_editor_nsfw_score",
+    "NSFW risk score distribution",
+    buckets=(0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 0.9, 1.0),
+)
 
 
 @dataclass
@@ -28,3 +33,6 @@ class MetricsService:
 
     def observe_identity_similarity(self, value: float) -> None:
         IDENTITY_SIM_HIST.observe(value)
+
+    def observe_nsfw_score(self, value: float) -> None:
+        NSFW_SCORE_HIST.observe(value)
